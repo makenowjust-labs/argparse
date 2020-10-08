@@ -27,6 +27,7 @@ lazy val root = project
     version := "0.1.0-SNAPSHOT",
     console / initialCommands := """
       |import codes.quine.labo.argparse._
+      |import codes.quine.labo.argparse.prelude._
       """.stripMargin,
     Compile / console / scalacOptions -= "-Wunused",
     Test / console / scalacOptions -= "-Wunused",
@@ -37,5 +38,6 @@ lazy val root = project
       .toMap,
     // Settings for test:
     libraryDependencies += "io.monix" %% "minitest" % "2.8.2" % Test,
+    libraryDependencies += "codes.quine.labo" %% "hariko-minitest" % "0.1.0" % Test,
     testFrameworks += new TestFramework("minitest.runner.Framework")
   )
