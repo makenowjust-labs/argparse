@@ -2,7 +2,7 @@ package codes.quine.labo.argparse
 
 import minitest.SimpleTestSuite
 
-object VCSCommandSpec extends SimpleTestSuite {
+object VCSCommandSuite extends SimpleTestSuite {
   import Failure.{InvalidValue, UnknownArgument}
 
   test("Command#parse: empty args") {

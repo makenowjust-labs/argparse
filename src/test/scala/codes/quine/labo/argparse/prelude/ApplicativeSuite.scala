@@ -8,7 +8,7 @@ import minitest.SimpleTestSuite
 
 import PreludeImplicits._
 
-object ApplicativeSpec extends SimpleTestSuite with HarikoChecker {
+object ApplicativeSuite extends SimpleTestSuite with HarikoChecker {
   test("Applicative.either: Applicative laws") {
     type F[A] = Either[Seq[Int], A]
     check(Property.forAll[F[Int]](ApplicativeLaws.identity(_)))

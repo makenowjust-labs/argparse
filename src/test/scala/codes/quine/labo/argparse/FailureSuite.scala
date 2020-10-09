@@ -4,7 +4,7 @@ import minitest.SimpleTestSuite
 
 import Failure._
 
-object FailureSpec extends SimpleTestSuite {
+object FailureSuite extends SimpleTestSuite {
   test("AmbiguousArgument#errorMessage") {
     assertEquals(AmbiguousArgument("foo").errorMessage, "ambiguous argument: foo")
   }

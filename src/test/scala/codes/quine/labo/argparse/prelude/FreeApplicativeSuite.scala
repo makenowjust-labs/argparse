@@ -7,7 +7,7 @@ import minitest.SimpleTestSuite
 import FreeApplicative.Pure
 import PreludeImplicits._
 
-object FreeApplicativeSpec extends SimpleTestSuite with HarikoChecker {
+object FreeApplicativeSuite extends SimpleTestSuite with HarikoChecker {
   test("FreeApplicative#foldMap") {
     val ap = FreeApplicative.lift(Id(42))
     assertEquals(

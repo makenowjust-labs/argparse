@@ -7,7 +7,7 @@ import FlagName._
 import Input._
 import Failure._
 
-object ArgSpec extends SimpleTestSuite {
+object ArgSuite extends SimpleTestSuite {
   test("Arg#simpleName") {
     val optionFlag = OptionFlag(Seq(LongName("foo")), "<value>", "foo", Right(_))
     val switchFlag = SwitchFlag(Seq(LongName("foo")), "foo", () => Right(true))

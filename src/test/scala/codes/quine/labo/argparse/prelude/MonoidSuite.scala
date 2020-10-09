@@ -8,7 +8,7 @@ import minitest.SimpleTestSuite
 
 import PreludeImplicits._
 
-object MonoidSpec extends SimpleTestSuite with HarikoChecker {
+object MonoidSuite extends SimpleTestSuite with HarikoChecker {
   test("Monoid.seq: Monoid laws") {
     type A = Seq[Int]
     check(Property.forAll[A](MonoidLaws.leftIdentity(_)))

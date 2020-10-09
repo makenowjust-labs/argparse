@@ -5,12 +5,13 @@ import prelude.Id
 final case class Group[A](name: Option[String], args: Seq[Arg[A]]) {
   import Match.Ambiguous
 
-  private[argparse] def accept(input: Input): Option[Match[Id, A]] = args
-    .map(_.accept(input))
-    .collect { case Some(m) => m } match {
-    case Seq()  => None
-    case Seq(m) => Some(m)
-    case _      => Some(Ambiguous())
+  private[argparse] def accept(input: Input): Option[Match[Id, A]] = {
+    val accepted = args.map(_.accept(input)).collect { case Some(m) => m }
+    accepted match {
+      case Seq()  => None
+      case Seq(m) => Some(m)
+      case _      => Some(Ambiguous())
+    }
   }
 
   def validate[B](f: A => Either[Seq[String], B]): Group[B] = Group(name, args.map(_.validate(f)))
