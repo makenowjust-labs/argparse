@@ -59,7 +59,7 @@ object VCSCommand {
 
     object Status {
       val short: Quantifier[Boolean] = optional(
-        switch("short", "s", "Give the output in the short-format.").map(_ => true),
+        switch("short", "s", "Give the output in the short-format").map(_ => true),
         default = false
       )
 

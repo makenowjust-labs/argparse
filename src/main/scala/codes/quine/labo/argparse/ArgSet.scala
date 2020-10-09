@@ -135,11 +135,11 @@ final case class ArgSet[A](set: FreeApplicative[Quantifier, A]) {
     Help(usage(commandNames), help, options.result(), subcommands.result(), positionals.result())
   }
 
-  def subcommands: Map[String, ArgSet[_]] = {
-    val subcommands = Map.newBuilder[String, ArgSet[_]]
+  def subcommands: Map[String, (ArgSet[_], String)] = {
+    val subcommands = Map.newBuilder[String, (ArgSet[_], String)]
     args.foreach {
       case sub: Subcommand[_, _] =>
-        sub.names.foreach(name => subcommands.addOne(name -> sub.set))
+        sub.names.foreach(name => subcommands.addOne(name -> (sub.set, sub.help)))
       case _ => ()
     }
     subcommands.result()
