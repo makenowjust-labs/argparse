@@ -46,7 +46,7 @@ private[argparse] object Match {
 
   implicit def applicative[F[_]: Applicative]: Applicative[({ type G[A] = Match[F, A] })#G] =
     new Applicative[({ type G[A] = Match[F, A] })#G] {
-      override def map[A, B](fa: Match[F, A])(f: A => B): Match[F, B] = fa.map(f)
+      def map[A, B](fa: Match[F, A])(f: A => B): Match[F, B] = fa.map(f)
       def pure[A](value: A): Match[F, A] = Match.pure(value)
       def ap[A, B](ff: Match[F, A => B], fa: Match[F, A]): Match[F, B] = Match.ap(ff, fa)
     }

@@ -10,7 +10,7 @@ private[argparse] object Id {
   def ap[A, B](ff: Id[A => B], fa: Id[A]): Id[B] = Id(ff.value(fa.value))
 
   implicit val applicative: Applicative[Id] = new Applicative[Id] {
-    override def map[A, B](fa: Id[A])(f: A => B): Id[B] = fa.map(f)
+    def map[A, B](fa: Id[A])(f: A => B): Id[B] = fa.map(f)
     def pure[A](value: A): Id[A] = Id.pure(value)
     def ap[A, B](ff: Id[A => B], fa: Id[A]): Id[B] = Id.ap(ff, fa)
   }

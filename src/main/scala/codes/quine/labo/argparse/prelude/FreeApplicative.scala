@@ -8,11 +8,6 @@ private[argparse] sealed abstract class FreeApplicative[F[_], A] {
     case Ap(fa, apf) => Ap(fa, apf.map(_.andThen(f)))
   }
 
-  final def mapK[G[_]](t: FunctionK[F, G]): FreeApplicative[G, A] = this match {
-    case Pure(value) => Pure(value)
-    case Ap(fa, apf) => Ap(t(fa), apf.mapK(t))
-  }
-
   final def foldMap[G[_]](t: FunctionK[F, G])(implicit G: Applicative[G]): G[A] = this match {
     case Pure(value) => G.pure(value)
     case Ap(fa, apf) => G.ap(apf.foldMap(t), t(fa))
@@ -40,7 +35,7 @@ private[argparse] object FreeApplicative {
 
   implicit def applicative[F[_]]: Applicative[({ type G[A] = FreeApplicative[F, A] })#G] =
     new Applicative[({ type G[A] = FreeApplicative[F, A] })#G] {
-      override def map[A, B](fa: FreeApplicative[F, A])(f: A => B): FreeApplicative[F, B] = fa.map(f)
+      def map[A, B](fa: FreeApplicative[F, A])(f: A => B): FreeApplicative[F, B] = fa.map(f)
       def pure[A](value: A): FreeApplicative[F, A] = FreeApplicative.pure(value)
       def ap[A, B](ff: FreeApplicative[F, A => B], fa: FreeApplicative[F, A]): FreeApplicative[F, B] =
         FreeApplicative.ap(ff, fa)

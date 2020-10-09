@@ -1,7 +1,7 @@
 package codes.quine.labo.argparse.prelude
 
 private[argparse] trait Applicative[F[_]] {
-  def map[A, B](fa: F[A])(f: A => B): F[B] = ap(pure(f), fa)
+  def map[A, B](fa: F[A])(f: A => B): F[B]
 
   def pure[A](value: A): F[A]
 
