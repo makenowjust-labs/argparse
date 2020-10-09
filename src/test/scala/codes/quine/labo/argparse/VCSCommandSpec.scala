@@ -2,7 +2,32 @@ package codes.quine.labo.argparse
 
 import minitest.SimpleTestSuite
 
-object CommandSpec extends SimpleTestSuite {
+object VCSCommandSpec extends SimpleTestSuite {
+  test("Command#parse: empty args") {
+    val result = VCSCommand.command.parse(Seq())
+    assertEquals(result, Right(VCSCommand(false, false, Seq.empty, None, None)))
+  }
+
+  test("Command#parse: short flags") {
+    val result = VCSCommand.command.parse(Seq("-vhcfoo1=bar1", "-c", "foo2=bar2"))
+    assertEquals(result, Right(VCSCommand(true, true, Seq("foo1" -> "bar1", "foo2" -> "bar2"), None, None)))
+  }
+
+  test("Command#parse: long flags") {
+    val result = VCSCommand.command.parse(Seq("--help", "--config", "foo=bar", "--work-tree=foo"))
+    assertEquals(result, Right(VCSCommand(false, true, Seq("foo" -> "bar"), Some("foo"), None)))
+  }
+
+  test("Command#parse: subcommand") {
+    val result = VCSCommand.command.parse(Seq("--config", "foo=bar", "add", "foo", "bar"))
+    assertEquals(
+      result,
+      Right(
+        VCSCommand(false, false, Seq("foo" -> "bar"), None, Some(VCSCommand.Subcommand.Add(false, Seq("foo", "bar"))))
+      )
+    )
+  }
+
   test("Command#toHelp: main command") {
     val help = VCSCommand.command.toHelp
     assertEquals(
@@ -10,7 +35,7 @@ object CommandSpec extends SimpleTestSuite {
       """vcs - A version control system
         |
         |Usage:
-        |    vcs [--version] [--help] [--config=<name>=<value>]... [--work-tree=<path>] <subcommand>
+        |    vcs [--version] [--help] [--config=<name>=<value>]... [--work-tree=<path>] [<subcommand>]
         |
         |Options:
         |    --version, -v        Show a verion number

@@ -5,7 +5,7 @@ final case class VCSCommand(
     help: Boolean,
     configurations: Seq[(String, String)],
     workTree: Option[String],
-    subcommand: VCSCommand.Subcommand
+    subcommand: Option[VCSCommand.Subcommand]
 )
 
 object VCSCommand {
@@ -40,7 +40,7 @@ object VCSCommand {
     )
   )
 
-  val subcommands: Group[Subcommand] = {
+  val subcommands: Quantifier[Option[Subcommand]] = optional {
     import Subcommand._
     group("<subcommand>", Status.command <|> Add.command <|> Commit.command)
   }
