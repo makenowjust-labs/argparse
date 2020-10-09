@@ -21,4 +21,10 @@ object PreludeImplicits {
     Equiv.by(_.foldMap(FunctionK.identity[F]))
 
   implicit def seqGen[A: Gen]: Gen[Seq[A]] = Gen.list[A].map(_.toSeq)
+
+  implicit def eitherEquiv[A: Equiv, B: Equiv]: Equiv[Either[A, B]] = Equiv.fromFunction {
+    case (Left(x), Left(y))   => Equiv[A].equiv(x, y)
+    case (Right(x), Right(y)) => Equiv[B].equiv(x, y)
+    case _                    => false
+  }
 }

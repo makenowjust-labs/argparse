@@ -9,14 +9,6 @@ import minitest.SimpleTestSuite
 import PreludeImplicits._
 
 object ConstSpec extends SimpleTestSuite with HarikoChecker {
-  test("Const#value") {
-    assertEquals(Const(42).value, 42)
-  }
-
-  test("Const#map") {
-    assertEquals(Const(42).map((_: Int) + 1), Const(42))
-  }
-
   test("Const.pure") {
     assertEquals(Const.pure[Seq[Int], Int](42), Const(Seq.empty))
   }
@@ -25,7 +17,15 @@ object ConstSpec extends SimpleTestSuite with HarikoChecker {
     assertEquals(Const.ap(Const[Seq[Int], Int => Int](Seq(2)), Const[Seq[Int], Int](Seq(1))), Const(Seq(1, 2)))
   }
 
-  test("Const: Applicative") {
+  test("Const#value") {
+    assertEquals(Const(42).value, 42)
+  }
+
+  test("Const#map") {
+    assertEquals(Const(42).map((_: Int) + 1), Const(42))
+  }
+
+  test("Const: Applicative laws") {
     type F[A] = Const[Seq[Int], A]
     check(Property.forAll[F[Int]](ApplicativeLaws.identity(_)))
     check(Property.forAll[(F[Int], F[Int => Int], F[Int => Int])] { case (fa, ff, fg) =>

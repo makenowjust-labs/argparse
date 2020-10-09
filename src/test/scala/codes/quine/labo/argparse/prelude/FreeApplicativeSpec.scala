@@ -28,7 +28,7 @@ object FreeApplicativeSpec extends SimpleTestSuite with HarikoChecker {
     assertEquals(FreeApplicative.ap(apf, apa), Pure(42))
   }
 
-  test("FreeApplicative: Applicative") {
+  test("FreeApplicative: Applicative laws") {
     type F[A] = FreeApplicative[Id, A]
     check(Property.forAll[F[Int]](ApplicativeLaws.identity(_)))
     check(Property.forAll[(F[Int], F[Int => Int], F[Int => Int])] { case (fa, ff, fg) =>
