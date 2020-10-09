@@ -3,6 +3,8 @@ package codes.quine.labo.argparse
 import minitest.SimpleTestSuite
 
 object VCSCommandSpec extends SimpleTestSuite {
+  import Failure.{InvalidValue, UnknownArgument}
+
   test("Command#parse: empty args") {
     val result = VCSCommand.command.parse(Seq())
     assertEquals(result, Right(VCSCommand(false, false, Seq.empty, None, None)))
@@ -26,6 +28,26 @@ object VCSCommandSpec extends SimpleTestSuite {
         VCSCommand(false, false, Seq("foo" -> "bar"), None, Some(VCSCommand.Subcommand.Add(false, Seq("foo", "bar"))))
       )
     )
+  }
+
+  test("Command#parse: unknown short flag") {
+    val result = VCSCommand.command.parse(Seq("-hu"))
+    assertEquals(result, Left(Seq(UnknownArgument("-u"))))
+  }
+
+  test("Command#parse: unknown long flag") {
+    val result = VCSCommand.command.parse(Seq("--foo"))
+    assertEquals(result, Left(Seq(UnknownArgument("--foo"))))
+  }
+
+  test("Command#parse: unknown positional argument") {
+    val result = VCSCommand.command.parse(Seq("foo"))
+    assertEquals(result, Left(Seq(UnknownArgument("foo"))))
+  }
+
+  test("Command#parse: invalid flag value") {
+    val result = VCSCommand.command.parse(Seq("-c", "foo"))
+    assertEquals(result, Left(Seq(InvalidValue(Some("-c"), "wrong format: foo"))))
   }
 
   test("Command#toHelp: main command") {
