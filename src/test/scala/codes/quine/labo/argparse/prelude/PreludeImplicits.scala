@@ -18,7 +18,9 @@ object PreludeImplicits {
     }
 
   implicit def freeApplicativeEquiv[F[_]: Applicative, A](implicit eqF: Equiv[F[A]]): Equiv[FreeApplicative[F, A]] =
-    Equiv.by(_.foldMap(FunctionK.identity[F]))
+    Equiv.by(_.foldMap(new FunctionK[F, F] {
+      def apply[A](fa: F[A]): F[A] = fa
+    }))
 
   implicit def seqGen[A: Gen]: Gen[Seq[A]] = Gen.list[A].map(_.toSeq)
 
