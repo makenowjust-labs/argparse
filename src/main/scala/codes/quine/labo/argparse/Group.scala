@@ -20,4 +20,6 @@ final case class Group[A](name: Option[String], args: Seq[Arg[A]]) {
   def map[B](f: A => B): Group[B] = validate(a => Right(f(a)))
 
   def simpleNames: Seq[String] = name.map(Seq(_)).getOrElse(args.map(_.simpleName))
+
+  def usages: Seq[String] = name.map(Seq(_)).getOrElse(args.map(_.usage))
 }

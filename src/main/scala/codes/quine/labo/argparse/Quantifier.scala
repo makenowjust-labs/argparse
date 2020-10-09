@@ -9,6 +9,10 @@ sealed abstract class Quantifier[A] {
 
   private[argparse] def result: Either[Seq[Failure], A]
 
+  def usage: String
+
+  def args: Seq[Arg[_]]
+
   final def validate[B](f: A => Either[Seq[String], B]): Quantifier[B] = this match {
     case Validation(arg, g) => Validation(arg, g.andThen(_.flatMap(f)))
     case arg                => Validation(arg, f)
@@ -34,6 +38,13 @@ object Quantifier {
       case Some(value) => Right(value)
       case None        => Left(Seq(MissingArgument(group.simpleNames)))
     }
+
+    def usage: String = group.usages match {
+      case Seq(usage) => usage
+      case usages     => usages.mkString("(", " | ", ")")
+    }
+
+    def args: Seq[Arg[_]] = group.args
   }
 
   private[argparse] final case class Optional[A](group: Group[A], acc: Option[A] = None) extends Quantifier[Option[A]] {
@@ -46,6 +57,10 @@ object Quantifier {
     }
 
     def result: Either[Seq[Failure], Option[A]] = Right(acc)
+
+    def usage: String = group.usages.mkString("[", " | ", "]")
+
+    def args: Seq[Arg[_]] = group.args
   }
 
   private[argparse] final case class RequiredMany[A](group: Group[A], acc: Seq[A] = Seq.empty)
@@ -61,6 +76,13 @@ object Quantifier {
     def result: Either[Seq[Failure], Seq[A]] =
       if (acc.nonEmpty) Right(acc)
       else Left(Seq(MissingArgument(group.simpleNames)))
+
+    def usage: String = group.usages match {
+      case Seq(usage) => s"$usage..."
+      case usages     => usages.mkString("(", " | ", ")...")
+    }
+
+    def args: Seq[Arg[_]] = group.args
   }
 
   private[argparse] final case class OptionalMany[A](group: Group[A], acc: Seq[A] = Seq.empty)
@@ -74,6 +96,10 @@ object Quantifier {
     }
 
     def result: Either[Seq[Failure], Seq[A]] = Right(acc)
+
+    def usage: String = group.usages.mkString("[", " | ", "]...")
+
+    def args: Seq[Arg[_]] = group.args
   }
 
   private[argparse] final case class RequiredOnce[A](group: Group[A]) extends Quantifier[A] {
@@ -86,6 +112,13 @@ object Quantifier {
     }
 
     def result: Either[Seq[Failure], A] = Left(Seq(MissingArgument(group.simpleNames)))
+
+    def usage: String = group.usages match {
+      case Seq(usage) => usage
+      case usages     => usages.mkString("(", " | ", ")")
+    }
+
+    def args: Seq[Arg[_]] = group.args
   }
 
   private[argparse] final case class OptionalOnce[A](group: Group[A]) extends Quantifier[Option[A]] {
@@ -98,17 +131,25 @@ object Quantifier {
     }
 
     def result: Either[Seq[Failure], Option[A]] = Right(None)
+
+    def usage: String = group.usages.mkString("[", " | ", "]")
+
+    def args: Seq[Arg[_]] = group.args
   }
 
   private[argparse] final case class Accepted[A](value: A) extends Quantifier[A] {
     def accept(input: Input): Match[Quantifier, A] = NoMatch(this)
 
     def result: Either[Seq[Failure], A] = Right(value)
+
+    def usage: String = sys.error("internal error")
+
+    def args: Seq[Arg[_]] = sys.error("internal error")
   }
 
-  private[argparse] final case class Validation[A, B](arg: Quantifier[A], f: A => Either[Seq[String], B])
+  private[argparse] final case class Validation[A, B](quantifier: Quantifier[A], f: A => Either[Seq[String], B])
       extends Quantifier[B] {
-    def accept(input: Input): Match[Quantifier, B] = arg.accept(input) match {
+    def accept(input: Input): Match[Quantifier, B] = quantifier.accept(input) match {
       case Done(result)   => Done(result.map(Validation(_, f)))
       case Read(read)     => Read(read(_).map(Validation(_, f)))
       case ReadAll(reads) => ReadAll(reads(_).map(Validation(_, f)))
@@ -117,6 +158,10 @@ object Quantifier {
     }
 
     def result: Either[Seq[Failure], B] =
-      arg.result.flatMap(f(_).left.map(_.map(InvalidValue(None, _))))
+      quantifier.result.flatMap(f(_).left.map(_.map(InvalidValue(None, _))))
+
+    def usage: String = quantifier.usage
+
+    def args: Seq[Arg[_]] = quantifier.args
   }
 }

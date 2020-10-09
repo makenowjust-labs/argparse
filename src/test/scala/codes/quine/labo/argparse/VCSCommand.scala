@@ -36,16 +36,18 @@ object VCSCommand {
       "work-tree",
       "",
       metavar = "<path>",
-      help = "Set the path to the working tree."
+      help = "Set the path to the working tree"
     )
   )
 
   val subcommands: Group[Subcommand] = {
     import Subcommand._
-    Status.command <|> Add.command <|> Commit.command
+    group("<subcommand>", Status.command <|> Add.command <|> Commit.command)
   }
 
   val set: ArgSet[VCSCommand] = ArgSet.map5(version, help, configurations, workTree, subcommands)(VCSCommand.apply)
+
+  val command: Command[VCSCommand] = Command("vcs", "A version control system", set)
 
   sealed abstract class Subcommand
 
@@ -61,7 +63,7 @@ object VCSCommand {
         default = false
       )
 
-      val paths: Quantifier[Seq[String]] = many(positional[String]("<path>"))
+      val paths: Quantifier[Seq[String]] = many(positional[String]("<path>", "Paths to show status"))
 
       val set: ArgSet[Subcommand] = ArgSet.map2(short, paths)(Status.apply)
 
@@ -79,7 +81,7 @@ object VCSCommand {
         default = false
       )
 
-      val paths: Quantifier[Seq[String]] = some(positional[String]("<path>"))
+      val paths: Quantifier[Seq[String]] = some(positional[String]("<path>", "Paths to add"))
 
       val set: ArgSet[Subcommand] = ArgSet.map2(all, paths)(Add.apply)
 

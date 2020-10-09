@@ -2,10 +2,12 @@ package codes.quine.labo.argparse
 
 import scala.annotation.tailrec
 
+import prelude.Const
 import prelude.FreeApplicative
 import prelude.FunctionK
 
 final case class ArgSet[A](set: FreeApplicative[Quantifier, A]) {
+  import Arg.{OptionFlag, SwitchFlag, Positional, Subcommand}
   import ArgSet.{FA, MFA}
   import Input.{InputFlag, InputPositional, InputSubcommand}
   import Match.{Done, Read, ReadAll, Ambiguous}
@@ -108,6 +110,40 @@ final case class ArgSet[A](set: FreeApplicative[Quantifier, A]) {
 
     loop(set, args)
   }
+
+  def quantifiers: Seq[Quantifier[_]] =
+    set
+      .foldMap(new FunctionK[Quantifier, ({ type G[A] = Const[Seq[Quantifier[_]], A] })#G] {
+        def apply[A](fa: Quantifier[A]): Const[Seq[Quantifier[_]], A] = Const(Seq(fa))
+      })
+      .value
+
+  def args: Seq[Arg[_]] = quantifiers.flatMap(_.args)
+
+  def usage(commandNames: Seq[String]): Usage = Usage(commandNames, quantifiers)
+
+  def help(commandNames: Seq[String], help: String): Help = {
+    val options = Seq.newBuilder[(String, String)]
+    val subcommands = Seq.newBuilder[(String, String)]
+    val positionals = Seq.newBuilder[(String, String)]
+    args.foreach {
+      case flag: OptionFlag[_]   => options.addOne(flag.info)
+      case flag: SwitchFlag[_]   => options.addOne(flag.info)
+      case sub: Subcommand[_, _] => subcommands.addOne(sub.info)
+      case pos: Positional[_]    => positionals.addOne(pos.info)
+    }
+    Help(usage(commandNames), help, options.result(), subcommands.result(), positionals.result())
+  }
+
+  def subcommands: Map[String, ArgSet[_]] = {
+    val subcommands = Map.newBuilder[String, ArgSet[_]]
+    args.foreach {
+      case sub: Subcommand[_, _] =>
+        sub.names.foreach(name => subcommands.addOne(name -> sub.set))
+      case _ => ()
+    }
+    subcommands.result()
+  }
 }
 
 object ArgSet {
@@ -123,24 +159,15 @@ object ArgSet {
     ap(ap(pure((a1: A1) => (a2: A2) => f(a1, a2)), fa1), fa2)
 
   def map3[A1, A2, A3, B](fa1: ArgSet[A1], fa2: ArgSet[A2], fa3: ArgSet[A3])(f: (A1, A2, A3) => B): ArgSet[B] =
-    ap(ap(ap(pure((a1: A1) => (a2: A2) => (a3: A3) => f(a1, a2, a3)), fa1), fa2), fa3)
+    ap(map2(fa1, fa2)((a1, a2) => f(a1, a2, _)), fa3)
 
   def map4[A1, A2, A3, A4, B](fa1: ArgSet[A1], fa2: ArgSet[A2], fa3: ArgSet[A3], fa4: ArgSet[A4])(
       f: (A1, A2, A3, A4) => B
   ): ArgSet[B] =
-    ap(ap(ap(ap(pure((a1: A1) => (a2: A2) => (a3: A3) => (a4: A4) => f(a1, a2, a3, a4)), fa1), fa2), fa3), fa4)
+    ap(map3(fa1, fa2, fa3)((a1, a2, a3) => f(a1, a2, a3, _)), fa4)
 
   def map5[A1, A2, A3, A4, A5, B](fa1: ArgSet[A1], fa2: ArgSet[A2], fa3: ArgSet[A3], fa4: ArgSet[A4], fa5: ArgSet[A5])(
       f: (A1, A2, A3, A4, A5) => B
   ): ArgSet[B] =
-    ap(
-      ap(
-        ap(
-          ap(ap(pure((a1: A1) => (a2: A2) => (a3: A3) => (a4: A4) => (a5: A5) => f(a1, a2, a3, a4, a5)), fa1), fa2),
-          fa3
-        ),
-        fa4
-      ),
-      fa5
-    )
+    ap(map4(fa1, fa2, fa3, fa4)((a1, a2, a3, a4) => f(a1, a2, a3, a4, _)), fa5)
 }
