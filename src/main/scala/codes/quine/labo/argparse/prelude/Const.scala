@@ -7,7 +7,7 @@ private[argparse] final case class Const[R, A](value: R) {
   def map[B](f: A => B): Const[R, B] = Const(value)
 }
 
-object Const {
+private[argparse] object Const {
   @nowarn("msg=never used")
   def pure[R, A](value: A)(implicit R: Monoid[R]): Const[R, A] = Const(R.empty)
 
