@@ -1,6 +1,6 @@
 # argparse
 
-> A command line argument parser built on free applicative.
+> A command-line argument parser built on free applicative.
 
 ## License
 
