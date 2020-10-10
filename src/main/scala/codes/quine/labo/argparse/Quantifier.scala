@@ -30,8 +30,9 @@ object Quantifier {
       case Some(Done(result))   => Done(result.map { case Id(value) => Required(group, Some(value)) })
       case Some(Read(read))     => Read(read(_).map { case Id(value) => Required(group, Some(value)) })
       case Some(ReadAll(reads)) => ReadAll(reads(_).map { case Id(value) => Required(group, Some(value)) })
+      case Some(Ambiguous())    => Ambiguous()
+      case Some(_)              => throw new UnsupportedOperationException
       case None                 => NoMatch(this)
-      case Some(_)              => sys.error("internal error")
     }
 
     def result: Either[Seq[Failure], A] = acc match {
@@ -52,8 +53,9 @@ object Quantifier {
       case Some(Done(result))   => Done(result.map { case Id(value) => Optional(group, Some(value)) })
       case Some(Read(read))     => Read(read(_).map { case Id(value) => Optional(group, Some(value)) })
       case Some(ReadAll(reads)) => ReadAll(reads(_).map { case Id(value) => Optional(group, Some(value)) })
+      case Some(Ambiguous())    => Ambiguous()
+      case Some(_)              => throw new UnsupportedOperationException
       case None                 => NoMatch(this: Quantifier[Option[A]])
-      case Some(_)              => sys.error("internal error")
     }
 
     def result: Either[Seq[Failure], Option[A]] = Right(acc)
@@ -69,8 +71,9 @@ object Quantifier {
       case Some(Done(result))   => Done(result.map { case Id(value) => RequiredMany(group, acc :+ value) })
       case Some(Read(read))     => Read(read(_).map { case Id(value) => RequiredMany(group, acc :+ value) })
       case Some(ReadAll(reads)) => ReadAll(reads(_).map { case Id(value) => RequiredMany(group, acc :+ value) })
+      case Some(Ambiguous())    => Ambiguous()
+      case Some(_)              => throw new UnsupportedOperationException
       case None                 => NoMatch(this: Quantifier[Seq[A]])
-      case Some(_)              => sys.error("internal error")
     }
 
     def result: Either[Seq[Failure], Seq[A]] =
@@ -91,8 +94,9 @@ object Quantifier {
       case Some(Done(result))   => Done(result.map { case Id(value) => OptionalMany(group, acc :+ value) })
       case Some(Read(read))     => Read(read(_).map { case Id(value) => OptionalMany(group, acc :+ value) })
       case Some(ReadAll(reads)) => ReadAll(reads(_).map { case Id(value) => OptionalMany(group, acc :+ value) })
+      case Some(Ambiguous())    => Ambiguous()
+      case Some(_)              => throw new UnsupportedOperationException
       case None                 => NoMatch(this: Quantifier[Seq[A]])
-      case Some(_)              => sys.error("internal error")
     }
 
     def result: Either[Seq[Failure], Seq[A]] = Right(acc)
@@ -107,8 +111,9 @@ object Quantifier {
       case Some(Done(result))   => Done(result.map { case Id(value) => Accepted(value) })
       case Some(Read(read))     => Read(read(_).map { case Id(value) => Accepted(value) })
       case Some(ReadAll(reads)) => ReadAll(reads(_).map { case Id(value) => Accepted(value) })
+      case Some(Ambiguous())    => Ambiguous()
+      case Some(_)              => throw new UnsupportedOperationException
       case None                 => NoMatch(this)
-      case Some(_)              => sys.error("internal error")
     }
 
     def result: Either[Seq[Failure], A] = Left(Seq(MissingArgument(group.simpleNames)))
@@ -126,8 +131,9 @@ object Quantifier {
       case Some(Done(result))   => Done(result.map { case Id(value) => Accepted(Some(value)) })
       case Some(Read(read))     => Read(read(_).map { case Id(value) => Accepted(Some(value)) })
       case Some(ReadAll(reads)) => ReadAll(reads(_).map { case Id(value) => Accepted(Some(value)) })
+      case Some(Ambiguous())    => Ambiguous()
+      case Some(_)              => throw new UnsupportedOperationException
       case None                 => NoMatch(this: Quantifier[Option[A]])
-      case Some(_)              => sys.error("internal error")
     }
 
     def result: Either[Seq[Failure], Option[A]] = Right(None)
@@ -142,9 +148,9 @@ object Quantifier {
 
     def result: Either[Seq[Failure], A] = Right(value)
 
-    def usage: String = sys.error("internal error")
+    def usage: String = throw new UnsupportedOperationException
 
-    def args: Seq[Arg[_]] = sys.error("internal error")
+    def args: Seq[Arg[_]] = throw new UnsupportedOperationException
   }
 
   private[argparse] final case class Validation[A, B](quantifier: Quantifier[A], f: A => Either[Seq[String], B])
