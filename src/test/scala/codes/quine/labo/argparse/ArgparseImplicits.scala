@@ -1,9 +1,9 @@
 package codes.quine.labo.argparse
 
-import scala.math.Equiv.Implicits._
-
 import codes.quine.labo.hariko.Cogen
 import codes.quine.labo.hariko.Gen
+
+import scala.math.Equiv.Implicits._
 
 import Failure._
 import Match._

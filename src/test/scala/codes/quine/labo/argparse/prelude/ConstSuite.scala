@@ -1,10 +1,10 @@
 package codes.quine.labo.argparse.prelude
 
-import scala.math.Equiv.Implicits.seqEquiv
-
 import codes.quine.labo.hariko.Property
 import codes.quine.labo.hariko.minitest.HarikoChecker
 import minitest.SimpleTestSuite
+
+import scala.math.Equiv.Implicits.seqEquiv
 
 import PreludeImplicits._
 
